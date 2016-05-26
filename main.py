@@ -1,6 +1,5 @@
 import webapp2
 from webapp2_extras import auth
-from webapp2_extras.appengine.auth.models import User
 
 
 class RegHandler(webapp2.RequestHandler):
@@ -15,13 +14,12 @@ class RegHandler(webapp2.RequestHandler):
             self.response.set_status(400, "Missing required field")
             return
 
-        user = auth.get_auth().store.user_model.create_user(id, password_raw=passw)
+        success, user = auth.get_auth().store.user_model.create_user(id, password_raw=passw)
 
-        if not user[0]:
-            print user[1]
+        if not success:
             self.response.write('Unable to create that user:')
 
-            if 'auth_id' in user[1]:
+            if 'auth_id' in user:
                 self.response.write(" Username Already Taken\n")
                 self.response.set_status(400)
             else:
@@ -30,8 +28,8 @@ class RegHandler(webapp2.RequestHandler):
             return
 
         else:
-            print user[1]
-            print type(user[1])
+            print user
+            print type(user)
             self.response.write('User Created\n')
             self.response.set_status(202)
             return
@@ -76,8 +74,23 @@ class LogHandler(webapp2.RequestHandler):
             return
 
 
+class TokenHandler(webapp2.RequestHandler):
+    def post(self):
+        print self.request.POST
+
+        id = self.request.POST.get('id')
+        token = self.request.POST.get('token')
+
+        if not id or not token:
+            self.response.write('Missing Required Field\n')
+            self.response.set_status(400, "Missing required field")
+            return
+        user = auth.get_auth().store.user_model.get_by_auth_token(id, token)
+        print user
+        #self.response.write("Hello %s\n"%(user.auth_ids[0]))
 
 app = webapp2.WSGIApplication([
     ('/register', RegHandler),
-    ("/login", LogHandler)
+    ("/login", LogHandler),
+    ('/token', TokenHandler)
 ], debug=True)
