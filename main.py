@@ -41,6 +41,7 @@ class RegHandler(webapp2.RequestHandler):
                             'token': user.create_auth_token(user.key.id())},
                            indent=2
                            ))
+            self.response.write("\n")
             self.response.set_status(200)
             return
 
@@ -83,16 +84,19 @@ class LogHandler(webapp2.RequestHandler):
                             'token': user.create_auth_token(user.key.id())},
                            indent=2
                            ))
+            self.response.write("\n")
             self.response.set_status(200)
             return
 
 #will be changed to function when brought into project
 class TokenHandler(webapp2.RequestHandler):
-    def post(self):
+    def get(self):
         print self.request.POST
+        print "request dir:", dir(self.request)
+        print self.request.headers
 
-        id = self.request.POST.get('id')
-        token = self.request.POST.get('token')
+        id = self.request.headers.get('id')
+        token = self.request.headers.get('token')
 
         if not id or not token:
             jsonMsg(self.response, 'Missing required field')
