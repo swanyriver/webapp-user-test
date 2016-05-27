@@ -86,22 +86,13 @@ class TokenHandler(webapp2.RequestHandler):
             self.response.write('Missing Required Field\n')
             self.response.set_status(400, "Missing required field")
             return
+        if not id.isdigit():
+            self.response.write('Id must be numeric\n')
+            self.response.set_status(400, "Missing required field")
+            return
         user, timestamp = auth.get_auth().store.user_model.get_by_auth_token(int(id), token)
         print user
         self.response.write("Hello %s\n"%(user.auth_ids[0]))
-
-        # cls = auth.get_auth().store.user_model
-        #
-        # token_key = cls.token_model.get_key(id, 'auth', token)
-        # user_key = model.Key(cls, int(id))
-        # # Use get_multi() to save a RPC call.
-        # valid_token, user = model.get_multi([token_key, user_key])
-        # user = user_key.get()
-        # # if valid_token and user:
-        # #     timestamp = int(time.mktime(valid_token.created.timetuple()))
-        # #     return user, timestamp
-        # print "validToken:%r"%valid_token
-        # print "user", user, user_key
 
 
 app = webapp2.WSGIApplication([
